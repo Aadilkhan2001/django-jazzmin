@@ -36,6 +36,72 @@
 {% block coltype %}flex{% endblock %}
 
 {% block content %}
+    
+    
+    {% if cl.opts.verbose_name_plural|capfirst == 'Users'  %}
+    <div class="col-6 mb-3">
+        <button class="btn btn-primary" id="daily" onclick="daily()">Daily</button>
+        <button class="btn btn-primary" id="monthly" onclick="monthly()">Monthly</button>
+        <button class="btn btn-primary" id="yearly" onclick="yearly()">Yearly</button>
+   
+       </div>
+       <div class="col-6 mb-3">
+           
+       <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="from" id="" placeholder="From : DD/MM/YYYY">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="to" id="" placeholder="To : DD/MM/YYYY">
+        <button type="submit" class="btn btn-success ml-1" id="yearly" onclick="yearly()">submit</button>
+        </div>
+    </form>
+       </div>
+        <div class="col-12 text-center shadow rounded mb-3">
+        <h2>User Report</h1> 
+        </div>
+   
+
+    <div class="col-12">
+        <canvas class="shadow rounded mb-5" id="graph" height="200" width="600px"></canvas>
+    </div>
+            
+
+    {% endif %}
+
+    {% if cl.opts.verbose_name_plural|capfirst == 'Repairing models'  %}
+
+    <div class="col-6 mb-3">
+        <button class="btn btn-primary" id="daily" onclick="daily()">Daily</button>
+        <button class="btn btn-primary" id="monthly" onclick="monthly()">Monthly</button>
+        <button class="btn btn-primary" id="yearly" onclick="yearly()">Yearly</button>
+   
+       </div>
+       <div class="col-6 mb-3">
+           
+       <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="from" id="" placeholder="From : DD/MM/YYYY">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="to" id="" placeholder="To : DD/MM/YYYY">
+        <button type="submit" class="btn btn-success ml-1" id="yearly" onclick="yearly()">submit</button>
+        </div>
+    </form>
+       </div>
+        <div class="col-12 text-center shadow rounded mb-3">
+        <h2>Repairing Request Reports</h1> 
+        </div>
+   
+
+    <div class="col-12">
+        <canvas class="shadow rounded mb-5" id="graph" height="200" width="600px"></canvas>
+    </div>
+
+    {% endif %}
+        
+   
+
+        
+
     <div class="col-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
@@ -110,6 +176,8 @@
 
 {% block extrajs %}
     {{  block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
     <script>
         {% comment %} set filterInputLength default and custom values {% endcomment %}
@@ -120,5 +188,638 @@
             {% endfor %}
         }
     </script>
+    <script>
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+                }
+
+                function getRandomColorEachBar(count) {
+    var data =[];
+    for (var i = 0; i < count; i++) {
+        data.push(getRandomColor());
+    }
+    return data;
+}
+        {% if cl.opts.verbose_name_plural|capfirst == 'Users'  %}
+        {% if user_date_range %}
+        var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in user_date_range.keys %} '{{key|date}}', {% endfor %}],
+                datasets: [{
+                    label: 'Users',
+                    data: [{% for value in user_date_range.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: getRandomColorEachBar({{user_date_range|length}}),
+                    borderWidth: 1
+                }]
+            },
+            options: {plugins:{
+                legend:{
+                    display:false
+                }
+            },
+                scales: {
+                    y: {
+                        title:{
+                                text:'Users',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    },
+                    x: {
+                        title:{
+                                text:'Day',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    }
+                }
+            }
+            
+        });
+        
+        {% endif %}
+        var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in monthly_user.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [{
+                    label: 'Users',
+                    data: [{% for value in monthly_user.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: getRandomColorEachBar({{monthly_user|length}}),
+                    borderWidth: 1
+                }]
+            },
+            options: {plugins:{
+                legend:{
+                    display:false
+                }
+            },
+                scales: {
+                    y: {
+                        title:{
+                                text:'Users',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    },
+                    x: {
+                        title:{
+                                text:'Month',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    }
+                }
+            }
+            
+        });
+
+        function monthly()
+        {
+            function updateConfigAsNewObject(myChart){
+    myChart.data = {
+                labels: [{% for key in monthly_user.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [{
+                    label: 'Users',
+                    data: [{% for value in monthly_user.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: getRandomColorEachBar({{monthly_user|length}}),
+                    borderWidth: 1
+                }]
+            };
+
+        myChart.options={plugins:{
+                legend:{
+                    display:false
+                }
+            },
+                scales: {
+                    y: {
+                        title:{
+                                text:'Users',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    },
+                    x: {
+                        title:{
+                                text:'Month',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    }
+                }
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);  
+        }
+        function daily(){
+        function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in daily_user.keys %} 
+                            '{{ current_date|date:'M' }}{{key}}',
+                            {% endfor %}],
+                datasets: [{
+                    label: 'Users',
+                    data: [{% for value in daily_user.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:getRandomColorEachBar({{daily_user|length}}) ,
+                   
+                    borderWidth: 1
+                }],
+    };
+    myChart.options={plugins:{
+                legend:{
+                    display:false
+                }
+            },
+                scales: {
+                    y: {
+                        title:{
+                                text:'Users',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    },
+                    x: {
+                        title:{
+                                text:'Day',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    }
+                }
+            };
+    myChart.update();
+
+}
+updateConfigAsNewObject(myChart);
+} 
+
+function yearly()
+{
+    function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in yearly_user.keys %} 
+                            '{{key}}',
+                            {% endfor %}],
+                datasets: [{
+                    label: 'sales',
+                    data: [{% for value in yearly_user.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:getRandomColorEachBar({{yearly_user|length}}),
+                    
+                    borderWidth: 1
+                }],
+    };
+    myChart.options={plugins:{
+                legend:{
+                    display:false
+                }
+            },
+                scales: {
+                    y: {
+                        title:{
+                                text:'Users',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    },
+                    x: {
+                        title:{
+                                text:'Year',
+                                display:true,
+                                color:'red',
+                        },
+                    
+                        beginAtZero: true
+                        
+                    }
+                }
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+}
+{% endif %}
+
+//Repairing Request Graph 
+{% if cl.opts.verbose_name_plural|capfirst == 'Repairing models'  %}
+
+{% if user_accepted and user_rejected and user_pending %}
+var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in user_accepted.keys %} '{{key|date}}', {% endfor %}],
+                datasets: [
+                {
+                    label: 'Pending',
+                    data: [{% for value in user_pending.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,255,0)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Accepted',
+                    data: [{% for value in user_accepted.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:'rgba(102,204,0)' ,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Rejected',
+                    data: [{% for value in user_rejected.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,0,0)',
+                    borderWidth: 1,
+                }
+                ]
+            },
+            options: { plugins:{
+                title:'Daily'
+            },
+                scales: {
+                    y: {
+                        title:{
+                            text:'Request',
+                            color:'red',
+                            display:true,
+                        },
+                        beginAtZero: true,
+                        stacked:true
+                        
+                    },
+                    x:{
+                        stacked:true,
+                        title:{
+                            text:'Day',
+                            color:'red',
+                            display:true
+                        }
+                    }
+                }
+            }
+            
+        });
+{% endif %}
+var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in monthly_repairing_request_accepted.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [
+                {
+                    label: 'Pending',
+                    data: [{% for value in monthly_repairing_request_pending.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,255,0)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Accepted',
+                    data: [{% for value in monthly_repairing_request_accepted.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:'rgba(102,204,0)' ,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Rejected',
+                    data: [{% for value in monthly_repairing_request_rejected.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,0,0)',
+                    borderWidth: 1,
+                }
+                ]
+            },
+            options: { plugins:{
+                title:'Monthly'
+            },
+                scales: {
+                    y: {
+                        title:{
+                            text:'Request',
+                            color:'red',
+                            display:true,
+                        },
+                        beginAtZero: true,
+                        stacked:true
+                        
+                    },
+                    x:{
+                        stacked:true,
+                        title:{
+                            text:'Month',
+                            color:'red',
+                            display:true
+                        }
+                    }
+                }
+            }
+            
+        });
+
+        function monthly()
+        {
+            function updateConfigAsNewObject(myChart){
+    myChart.data = {
+                labels: [{% for key in monthly_repairing_request_accepted.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [
+                {
+                    label: 'Pending',
+                    data: [{% for value in monthly_repairing_request_pending.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,255,0)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Accepted',
+                    data: [{% for value in monthly_repairing_request_accepted.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:'rgba(102,204,0)' ,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Rejected',
+                    data: [{% for value in monthly_repairing_request_rejected.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,0,0)',
+                    borderWidth: 1,
+                }
+                ]
+            };
+
+        myChart.options={ plugins:{
+                title:'Monthly'
+            },
+                scales: {
+                    y: {
+                        title:{
+                            text:'Request',
+                            color:'red',
+                            display:true,
+                        },
+                        beginAtZero: true,
+                        stacked:true
+                        
+                    },
+                    x:{
+                        stacked:true,
+                        title:{
+                            text:'Month',
+                            color:'red',
+                            display:true
+                        }
+                    }
+                }
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);  
+        }
+        function daily(){
+        function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in daily_repairing_request_accepted.keys %} 
+                            '{{ current_date|date:'M' }}{{key}}',
+                            {% endfor %}],
+                datasets: [
+                {
+                    label: 'Pending',
+                    data: [{% for value in daily_repairing_request_pending.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,255,0)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Accepted',
+                    data: [{% for value in daily_repairing_request_accepted.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:'rgba(102,204,0)' ,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Rejected',
+                    data: [{% for value in daily_repairing_request_rejected.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,0,0)',
+                    borderWidth: 1,
+                }
+                ]
+    };
+    myChart.options={ 
+                scales: {
+                    y: {
+                        title:{
+                            text:'Request',
+                            color:'red',
+                            display:true,
+                        },
+                        beginAtZero: true,
+                        stacked:true
+                        
+                    },
+                    x:{
+                        stacked:true,
+                        title:{
+                            text:'Day',
+                            color:'red',
+                            display:true
+                        }
+                    }
+                }
+            }
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+} 
+
+function yearly()
+{
+    function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in yearly_repairing_request_accepted.keys %} 
+                            '{{key}}',
+                            {% endfor %}],
+                            datasets: [
+                {
+                    label: 'Pending',
+                    data: [{% for value in yearly_repairing_request_pending.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,255,0)',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Accepted',
+                    data: [{% for value in yearly_repairing_request_accepted.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:'rgba(102,204,0)' ,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Rejected',
+                    data: [{% for value in yearly_repairing_request_rejected.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: 'rgba(255,0,0)',
+                    borderWidth: 1,
+                }
+                ]
+    };
+    myChart.options={
+                scales: {
+                    y: {
+                        title:{
+                            text:'Request',
+                            color:'red',
+                            display:true,
+                        },
+                        beginAtZero: true,
+                        stacked:true,
+                        
+                    },
+                    x:{
+                        stacked:true,
+                        title:{
+                            text:'Year',
+                            color:'red',
+                            display:true
+                        }
+                    }
+                }
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+}
+{% endif %}
+
+    </script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_list.js' %}"></script>
+   
 {% endblock %}
