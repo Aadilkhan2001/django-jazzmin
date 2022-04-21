@@ -20,6 +20,31 @@
         {% widthratio dashboard_list|length 2 1 as middle %}
     {% endif %}
 
+    <div class="col-6 mb-3">
+        <button class="btn btn-primary" id="daily" onclick="daily()">Daily</button>
+        <button class="btn btn-primary" id="monthly" onclick="monthly()">Monthly</button>
+        <button class="btn btn-primary" id="yearly" onclick="yearly()">Yearly</button>
+   
+       </div>
+       <div class="col-6 mb-3">
+           
+       <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="from" id="" placeholder="From : DD/MM/YYYY">
+        <input required type="text" onfocus="(this.type='date')" class="form-control col-4 ml-1" name="to" id="" placeholder="To : DD/MM/YYYY">
+        <button type="submit" class="btn btn-success ml-1" id="yearly" onclick="yearly()">submit</button>
+        </div>
+    </form>
+       </div>
+        <div class="col-12 text-center shadow rounded mb-3">
+        <h2>Sales Report</h1> 
+        </div>
+   
+
+    <div class="col-12">
+        <canvas class="shadow rounded mb-5" id="graph" height="200" width="600px"></canvas>
+    </div>
     <div class="col-lg-9 col-12">
         <div class="row">
             <div class="col-md-6 col-sm-12">
@@ -131,3 +156,421 @@
     </div>
 
 {% endblock %}
+
+{% block extrajs %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   
+    <script>
+         function getRandomColor() {
+            var letters = '0123456789ABCDEF'.split('');
+            var color = '#';
+            for (var i = 0; i < 6; i++ ) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+                }
+
+                function getRandomColorEachBar(count) {
+    var data =[];
+    for (var i = 0; i < count; i++) {
+        data.push(getRandomColor());
+    }
+    return data;
+}
+
+    {% if user_date %}
+    var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in user_date.keys %} '{{key|date}}', {% endfor %}],
+                datasets: [{
+                   
+                    data: [{% for value in user_date.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: getRandomColorEachBar({{user_date|length}}),
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                plugins:{
+                legend: {
+    display: false,
+},
+tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+
+                },
+                scales: {
+                    x:{
+                        title:{
+                            display:'true',
+                            color:'red',
+                            text:'Day',
+                        }
+                    },
+                    y: {
+                        ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, ticks) {
+                        return '₹' + value;
+                    }
+                },
+                        beginAtZero: true,
+                        title: {
+          color: 'red',
+          display: true,
+          text: 'Sales in INR(₹) '
+        }
+                    }
+                    
+                }
+                
+            }
+            
+        });
+    {% else %}
+       var ctx = document.getElementById('graph').getContext('2d');
+         var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for key in month.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [{
+                   
+                    data: [{% for value in month.values %} '{{value}}', {% endfor %}],
+                    backgroundColor: getRandomColorEachBar({{month|length}}),
+                    borderWidth: 1
+                }]
+            },
+            options: { 
+                plugins:{
+                legend: {
+    display: false,
+},
+tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+
+                },
+                scales: {
+                    x:{
+                        title:{
+                            display:'true',
+                            color:'red',
+                            text:'Month',
+                        }
+                    },
+                    y: {
+                        ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, ticks) {
+                        return '₹' + value;
+                    }
+                },
+                        beginAtZero: true,
+                        title: {
+          color: 'red',
+          display: true,
+          text: 'Sales in INR(₹) '
+        }
+                    }
+                    
+                }
+                
+            }
+            
+        });
+
+
+
+        {% endif %}
+        //Monthly Sales
+        function monthly(){
+            function updateConfigAsNewObject(myChart){
+    myChart.data = {
+                labels: [{% for key in month.keys %} 
+                            {% if key == 1 %}
+                            'Jan', 
+                            {% elif key == 2 %}
+                            'Feb', 
+                            {% elif key == 3 %}
+                            'Mar', 
+                            {% elif key == 4 %}
+                            'Apr', 
+                            {% elif key == 5 %}
+                            'May', 
+                            {% elif key == 6 %}
+                            'Jun', 
+                            {% elif key == 7 %}
+                            'Jul', 
+                            {% elif key == 8 %}
+                            'Aug', 
+                            {% elif key == 9 %}
+                            'Sep', 
+                            {% elif key == 10 %}
+                            'Oct', 
+                            {% elif key == 11 %}
+                            'Nov', 
+                            {% elif key == 12 %}
+                            'Dec', 
+
+                            {% endif %}
+                            {% endfor %}],
+                datasets: [{
+                    label: 'sales',
+                    data: [{% for value in month.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:getRandomColorEachBar({{month|length}}) ,
+                    borderWidth: 1
+                }]
+            };
+
+    myChart.options={ 
+                plugins:{
+                legend: {
+    display: false,
+},
+tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+
+                },
+                scales: {
+                    x:{
+                        title:{
+                            display:'true',
+                            color:'red',
+                            text:'Month',
+                        }
+                    },
+                    y: {
+                        ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, ticks) {
+                        return '₹' + value;
+                    }
+                },
+                        beginAtZero: true,
+                        title: {
+          color: 'red',
+          display: true,
+          text: 'Sales in INR(₹) '
+        }
+                    }
+                    
+                }
+                
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+        }
+
+
+
+
+
+
+        //Daily Sales
+       function daily(){
+        function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in day.keys %} 
+                            '{{ current_date|date:'M' }}{{key}}',
+                            {% endfor %}],
+                datasets: [{
+                    label: 'sales',
+                    data: [{% for value in day.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:getRandomColorEachBar({{day|length}}),
+                   
+                    borderWidth: 1
+                }],
+    };
+    myChart.options={ 
+                plugins:{
+                legend: {
+    display: false,
+},
+tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+
+                },
+                scales: {
+                    x:{
+                        title:{
+                            display:'true',
+                            color:'red',
+                            text:'Day',
+                        }
+                    },
+                    y: {
+                        ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, ticks) {
+                        return '₹' + value;
+                    }
+                },
+                        beginAtZero: true,
+                        title: {
+          color: 'red',
+          display: true,
+          text: 'Sales in INR(₹) '
+        }
+                    }
+                    
+                }
+                
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+} 
+
+
+
+//Yearly Sales
+function yearly()
+{
+    function updateConfigAsNewObject(myChart){
+    myChart.data = {
+        labels: [{% for key in year.keys %} 
+                            '{{key}}',
+                            {% endfor %}],
+                datasets: [{
+                    label: 'sales',
+                    data: [{% for value in year.values %} '{{value}}', {% endfor %}],
+                    backgroundColor:getRandomColorEachBar({{year|length}}),
+                    borderWidth: 1
+                }],
+    };
+    myChart.options={ 
+                plugins:{
+                legend: {
+    display: false,
+},
+tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+
+                },
+                scales: {
+                    x:{
+                        title:{
+                            display:'true',
+                            color:'red',
+                            text:'Year',
+                        }
+                    },
+                    y: {
+                        ticks: {
+                    // Include a dollar sign in the ticks
+                    callback: function(value, index, ticks) {
+                        return '₹' + value;
+                    }
+                },
+                        beginAtZero: true,
+                        title: {
+          color: 'red',
+          display: true,
+          text: 'Sales in INR(₹) '
+        }
+                    }
+                    
+                }
+                
+            };
+    myChart.update();
+}
+updateConfigAsNewObject(myChart);
+}
+      </script>
+{% endblock %} 
